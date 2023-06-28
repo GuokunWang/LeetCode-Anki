@@ -8,7 +8,8 @@ create_tables()
 # start crawler
 worker = LeetCodeCrawler()
 worker.login()
-worker.fetch_accepted_problems()
+#worker.fetch_accepted_problems()
+worker.fetch_hot100_problems()
 
 # render anki
 render_anki()

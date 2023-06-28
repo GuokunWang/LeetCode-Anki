@@ -68,6 +68,29 @@ class LeetCodeCrawler:
 
         self.session.cookies.update(cookies)
 
+    def fetch_hot100_problems(self):
+        src_path = "./hot100.json"
+        with open(src_path, 'r') as f:
+            all_problems = json.load(f)
+        # filter AC problems
+        counter = 0
+        for group in all_problems:
+            for question in group["questions"]:
+                id, slug = question["id"], question["titleSlug"]
+                # only update problem if not exists
+                if Problem.get_or_none(Problem.id == id) is None:
+                    counter += 1
+                    # fetch problem
+                    do(self.questionData, args=[slug, True])
+                    # fetch solution
+                    do(self.fetch_questionSolutionArticles, args=[slug])
+
+
+                # always try to update submission
+                # do(self.fetch_submission, args=[slug])
+                # do(self.fetch_lastSubmission, args=[slug])
+        print(f"🤖 Updated {counter} problems")
+
     def fetch_accepted_problems(self):
         response = self.session.get("https://leetcode.cn/api/problems/all/")
         all_problems = json.loads(response.content.decode('utf-8'))
@@ -146,6 +169,7 @@ class LeetCodeCrawler:
                                      "content-type": "application/json",
                                  })
         body = json.loads(resp.content)
+        print(body)
 
         # parse data
         solutionid = get(body, "data.lastSubmission")['id']
